@@ -1,0 +1,42 @@
+<?php
+
+  function push_message($title, $message) {
+    $result = false;
+
+    // set API values
+    $apiHeader = array("title"   => $title,
+                       "message" => $message,
+                       "token"   => PUSHOVER_APPLICATION_TOKEN,
+                       "user"    => PUSHOVER_USER_KEY);
+
+    // configure curl
+    $options = array(
+      CURLOPT_POST           => true,
+      CURLOPT_POSTFIELDS     => $apiHeader,
+      CURLOPT_RETURNTRANSFER => true,
+      //CURLOPT_SAFE_UPLOAD    => true,
+      CURLOPT_USERAGENT      => USER_AGENT,
+      CURLOPT_VERBOSE        => 1
+    );
+
+    // execute API request
+    $curl = curl_init(PUSHOVER_API_PATH);
+    curl_setopt_array($curl, $options);
+    $output = curl_exec($curl);
+    $header = curl_getinfo($curl);
+    curl_close($curl);
+
+    // check result
+    if (200 === $header["http_code"]) {
+      $json = json_decode($output, true);
+      if (is_array($json)) {
+        if (isset($json["status"])) {
+          $result = (1 === $json["status"]);
+        }
+      }
+    }
+
+    return $result;
+  }
+
+?>

@@ -1,0 +1,8 @@
+README:
+
+1.) Copy all pushinfo.* files to a location that can not be accessed remotely.
+2.) Install https://hg.nhg.name/unchroot/
+3.) Configure pushinfo.conf.phs and make sure that all paths are accessible.
+4.) Create PROCESS_USER and PROCESS_GROUP system user and system group.
+5.) Configure CRON to call pushinfo.phs regularly:
+    */5 * * * * root php /path/to/pushinfo.phs >/dev/null 2>&1

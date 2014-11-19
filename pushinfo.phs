@@ -1,0 +1,70 @@
+<?php
+
+  require_once(dirname(__FILE__) . "/../unchroot/unchroot.phs");
+
+  require_once(dirname(__FILE__) . "/pushinfo.conf.phs");
+  require_once(dirname(__FILE__) . "/pushinfo.func.phs");
+
+  function pushinfo() {
+    // first of all drop privileges
+    if (force_unroot(PROCESS_USER, PROCESS_GROUP)) {
+      // disallow concurrency (either by timeout or by lock file)
+      if (disallow_concurrency(TIMEOUT)) {
+        // read folder list
+        $dir_handle = opendir(PUSHINFO_PATH);
+        $files      = array();
+        if (false !== $dir_handle) {
+          $filename = false;
+          do {
+            $filename = readdir($dir_handle);
+
+            if (false !== $filename) {
+              if (is_file(PUSHINFO_PATH . $filename)) {
+                array_push($files, $filename);
+              }
+            }
+          } while (false !== $filename);
+
+          closedir($dir_handle);
+        }
+
+        // sort the file array
+        sort($files, SORT_STRING | SORT_FLAG_CASE);
+
+        // handle found files
+        if (0 < count($files)) {
+          for ($index = 0; $index < count($files); $index++) {
+            // check if we know the last modification time of this file
+            $current_mtime = filemtime(PUSHINFO_PATH . $files[$index]);
+            $handle_file   = true;
+            if (file_exists(STATUS_PATH . $files[$index])) {
+              $last_mtime = file_get_contents(STATUS_PATH . $files[$index]);
+              if (false !== $last_mtime) {
+                $handle_file = ($current_mtime != $last_mtime);
+              }
+            }
+
+            // we need to handle this file
+            if ($handle_file) {
+              // retrieve title and message
+              $message = file_get_contents(PUSHINFO_PATH . $files[$index]);
+              $title   = TITLE_PREPEND . str_replace(REPLACE_FROM_TITLE, REPLACE_TO_TITLE, $files[$index]);
+
+              // try to push the message
+              if (push_message($title, $message)) {
+                // save new modification time
+                file_put_contents(STATUS_PATH . $files[$index], $current_mtime);
+              }
+            }
+          }
+        }
+
+        // free lock
+        allow_concurrency(TIMEOUT);
+      }
+    }
+  }
+
+  pushinfo();
+
+?>

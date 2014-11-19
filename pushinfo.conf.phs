@@ -1,0 +1,45 @@
+<?php
+
+  # defines the pushover.net API path
+  define("PUSHOVER_API_PATH", "https://api.pushover.net/1/messages.json");
+
+  # defines the pushover.net application token
+  define("PUSHOVER_APPLICATION_TOKEN", "<REPLACE-ME>");
+
+  #defines the pushover.net user key
+  define("PUSHOVER_USER_KEY", "<REPLACE-ME>");
+
+  # defines where the push notifications are located
+  # do not forget the trailing slash
+  define("PUSHINFO_PATH", "/srv/pushinfo/messages/");
+
+  # defines where the script stores its status
+  # do not forget the trailing slash
+  define("STATUS_PATH", "/srv/pushinfo/status/status/");
+
+  # defines which string shall be prepended to the title
+  # do not forget some nice separator like a colon and a space
+  define("TITLE_PREPEND", "");
+
+  # defines the user the script shall run as
+  define("PROCESS_USER", "pushinfo");
+
+  # defines the group the script shall run as
+  define("PROCESS_GROUP", "pushinfo");
+
+  # defines the string in the file name that gets
+  # replaced by white spaces for the title
+  define("REPLACE_FROM_TITLE", "_");
+
+  # defines the string in the file name the
+  # REPLACE_FROM_TITLE gets replaced with for the title
+  define("REPLACE_TO_TITLE", " ");
+
+  # defines the user agent string for CURL
+  define("USER_AGENT", "PushInfo 0.1");
+
+  # define timeout for PHP execution (as int)
+  # alternatively defines a lock file (as string)
+  define("TIMEOUT", "/srv/pushinfo/status/lock");
+
+?>
