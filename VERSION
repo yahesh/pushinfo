@@ -1,2 +1,5 @@
+VERSION: 0.1a2
+* pushinfo.phs is now a shell script
+
 VERSION: 0.1a1
 * initial version
