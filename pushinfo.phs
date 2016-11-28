@@ -1,10 +1,20 @@
-#!/bin/php
 <?php
 
-  require_once(dirname(__FILE__) . "/../unchroot/unchroot.phs");
+  /*
+    pushinfo.phs 0.4
 
-  require_once(dirname(__FILE__) . "/pushinfo.conf.phs");
-  require_once(dirname(__FILE__) . "/pushinfo.func.phs");
+    pushinfo uses the pushover.net service to send push notifications.
+    The push notifications are read from the PUSHINFO_PATH - the name
+    of the file will be be title of the push notification and the
+    content of the file will be the content of the push notification.
+    The information about already processess push notifications is
+    stored in single files in the STATUS_PATH.
+  */
+
+  require_once(__DIR__."/../unchroot/unchroot.phs");
+
+  require_once(__DIR__."/pushinfo.conf.phs");
+  require_once(__DIR__."/pushinfo.func.phs");
 
   function pushinfo() {
     // first of all drop privileges
@@ -20,7 +30,7 @@
             $filename = readdir($dir_handle);
 
             if (false !== $filename) {
-              if (is_file(PUSHINFO_PATH . $filename)) {
+              if (is_file(PUSHINFO_PATH.$filename)) {
                 array_push($files, $filename);
               }
             }
@@ -33,29 +43,27 @@
         sort($files, SORT_STRING | SORT_FLAG_CASE);
 
         // handle found files
-        if (0 < count($files)) {
-          for ($index = 0; $index < count($files); $index++) {
-            // check if we know the last modification time of this file
-            $current_mtime = filemtime(PUSHINFO_PATH . $files[$index]);
-            $handle_file   = true;
-            if (file_exists(STATUS_PATH . $files[$index])) {
-              $last_mtime = file_get_contents(STATUS_PATH . $files[$index]);
-              if (false !== $last_mtime) {
-                $handle_file = ($current_mtime != $last_mtime);
-              }
+        foreach ($files as $files_item) {
+          // check if we know the last modification time of this file
+          $current_mtime = filemtime(PUSHINFO_PATH.$files_item);
+          $handle_file   = true;
+          if (file_exists(STATUS_PATH.$files_item)) {
+            $last_mtime = file_get_contents(STATUS_PATH.$files_item);
+            if (false !== $last_mtime) {
+              $handle_file = ($current_mtime != $last_mtime);
             }
+          }
 
-            // we need to handle this file
-            if ($handle_file) {
-              // retrieve title and message
-              $message = file_get_contents(PUSHINFO_PATH . $files[$index]);
-              $title   = TITLE_PREPEND . str_replace(REPLACE_FROM_TITLE, REPLACE_TO_TITLE, $files[$index]);
+          // we need to handle this file
+          if ($handle_file) {
+            // retrieve title and message
+            $message = file_get_contents(PUSHINFO_PATH.$files_item);
+            $title   = TITLE_PREPEND.str_replace(REPLACE_FROM_TITLE, REPLACE_TO_TITLE, $files_item);
 
-              // try to push the message
-              if (push_message($title, $message)) {
-                // save new modification time
-                file_put_contents(STATUS_PATH . $files[$index], $current_mtime);
-              }
+            // try to push the message
+            if (push_message($title, $message)) {
+              // save new modification time
+              file_put_contents(STATUS_PATH.$files_item, $current_mtime);
             }
           }
         }

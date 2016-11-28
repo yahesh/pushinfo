@@ -1,5 +1,9 @@
-VERSION: 0.1a2
+[version 0.2]
+* pushinfo.phs is no shell script anymore
+* loops have been rewritten from for() to foreach() loops
+
+[version 0.1a2]
 * pushinfo.phs is now a shell script
 
-VERSION: 0.1a1
+[version 0.1a1]
 * initial version
